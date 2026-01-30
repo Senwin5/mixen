@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:mixen/services/api_service.dart';
+import 'upload_profile_image_page.dart'; // ✅ Import the upload page
 
 class SwipePage extends StatefulWidget {
   const SwipePage({super.key});
@@ -20,6 +21,7 @@ class _SwipePageState extends State<SwipePage> {
   }
 
   Future<void> loadUsers() async {
+    setState(() => isLoading = true);
     try {
       final fetchedUsers = await ApiService.getSwipeUsers();
       if (!mounted) return;
@@ -71,23 +73,14 @@ class _SwipePageState extends State<SwipePage> {
         borderRadius: BorderRadius.circular(24),
         child: Stack(
           children: [
-            // Background image with placeholder if missing
+            // Background image
             Positioned.fill(
               child: user['profile_image'] != null
                   ? Image.network(
                       user['profile_image'],
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey.shade300,
-                          child: const Icon(Icons.person, size: 60, color: Colors.white54),
-                        );
-                      },
                     )
-                  : Container(
-                      color: Colors.grey.shade300,
-                      child: const Icon(Icons.person, size: 60, color: Colors.white54),
-                    ),
+                  : Container(color: Colors.grey.shade300),
             ),
 
             // Gradient overlay
@@ -99,6 +92,7 @@ class _SwipePageState extends State<SwipePage> {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
+                      // ignore: deprecated_member_use
                       Colors.black.withOpacity(0.85),
                     ],
                   ),
@@ -114,7 +108,6 @@ class _SwipePageState extends State<SwipePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Username + Age
                   Text(
                     "${user['username'] ?? "Unknown"}, ${user['age'] ?? 'N/A'}",
                     style: const TextStyle(
@@ -124,7 +117,6 @@ class _SwipePageState extends State<SwipePage> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  // Bio
                   Text(
                     user['bio'] ?? "",
                     maxLines: 2,
@@ -143,6 +135,23 @@ class _SwipePageState extends State<SwipePage> {
     );
   }
 
+  // ✅ Button to go to Upload Profile Image page
+  Widget _uploadButton() {
+    return ElevatedButton(
+      onPressed: () async {
+        // Go to UploadProfileImagePage and wait for result
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const UploadProfileImagePage()),
+        );
+
+        // After returning, reload the users so the new profile image shows
+        loadUsers();
+      },
+      child: const Text("Upload/Change Profile Image"),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -151,6 +160,12 @@ class _SwipePageState extends State<SwipePage> {
         title: const Text("Discover"),
         centerTitle: true,
         elevation: 0,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: _uploadButton(), // Button in the AppBar
+          )
+        ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

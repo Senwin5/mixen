@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,6 +43,9 @@ class ApiService {
       };
     }
   }
+
+
+  
 
   // Get swipe users
   static Future<List<Map<String, dynamic>>> getSwipeUsers() async {
@@ -103,4 +107,8 @@ class ApiService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("token", token);
   }
+
+  static Future<dynamic> uploadProfileImage(File file) async {}
+
+  static Future<dynamic> updateProfile({required String bio, required int age}) async {}
 }

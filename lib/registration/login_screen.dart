@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mixen/pages/completeprofilepage.dart';
 import '../services/api_service.dart'; // use your actual ApiService
-import '../pages/swipe_page.dart'; // so we can go to next screen after login
+import '../pages/swipe_page.dart'; // Swipe page after login
+// Complete profile page
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -33,12 +35,26 @@ class _LoginScreenState extends State<LoginScreen> {
           message = "Login successful ✅";
         });
 
-        // Go to Swipe page after login
+        // Determine if profile is complete
+        // profile_complete is a new boolean returned from your backend
+        final profileComplete = result['data']['profile_complete'] ?? false;
+
         if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const SwipePage()),
-        );
+
+        // If profile incomplete → go to CompleteProfilePage
+        if (!profileComplete) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const CompleteProfilePage()),
+          );
+        } 
+        // If profile complete → go to SwipePage
+        else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const SwipePage()),
+          );
+        }
       } 
       // ❌ LOGIN FAILED
       else {
