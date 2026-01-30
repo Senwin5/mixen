@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import '../services/api_service.dart';
 import 'swipe_page.dart';
 
@@ -18,34 +19,60 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   File? _image;
   bool isLoading = false;
 
-  /// Fully working pickImage function
-  Future<void> pickImage() async {
-    bool permissionGranted = false;
+  /// Show bottom sheet to choose between Camera and Gallery
+  Future<void> pickImageOption() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => Wrap(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text('Gallery'),
+            onTap: () async {
+              Navigator.pop(context);
+              await pickImage(ImageSource.gallery);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.camera_alt),
+            title: const Text('Camera'),
+            onTap: () async {
+              Navigator.pop(context);
+              await pickImage(ImageSource.camera);
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
+  /// Request gallery permission depending on Android version / iOS
+  Future<bool> requestGalleryPermission() async {
     if (Platform.isAndroid) {
-      // Android 13+ needs photos permission
-      if (await Permission.photos.isGranted) {
-        permissionGranted = true;
-      } 
-      // Android <13 fallback storage permission
-      else if (await Permission.storage.isGranted) {
-        permissionGranted = true;
-      } 
-      // Request permissions if not granted
-      else {
-        if (await Permission.photos.request().isGranted) {
-          permissionGranted = true;
-        } else if (await Permission.storage.request().isGranted) {
-          permissionGranted = true;
-        }
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      final sdk = androidInfo.version.sdkInt;
+
+      if (sdk >= 33) {
+        // Android 13+
+        return await Permission.photos.request().isGranted;
+      } else {
+        // Android 12 and below
+        return await Permission.storage.request().isGranted;
       }
     } else if (Platform.isIOS) {
-      // iOS needs photos permission
-      if (await Permission.photos.isGranted) {
-        permissionGranted = true;
-      } else if (await Permission.photos.request().isGranted) {
-        permissionGranted = true;
-      }
+      return await Permission.photos.request().isGranted;
+    }
+    return false;
+  }
+
+  /// Pick image from camera or gallery with proper permissions
+  Future<void> pickImage(ImageSource source) async {
+    bool permissionGranted = false;
+
+    if (source == ImageSource.camera) {
+      permissionGranted = await Permission.camera.request().isGranted;
+    } else if (source == ImageSource.gallery) {
+      permissionGranted = await requestGalleryPermission();
     }
 
     if (!permissionGranted) {
@@ -58,7 +85,13 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
 
     try {
       final picker = ImagePicker();
-      final picked = await picker.pickImage(source: ImageSource.gallery);
+      final picked = await picker.pickImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 80,
+      );
+
       if (picked != null && mounted) {
         setState(() => _image = File(picked.path));
       }
@@ -70,6 +103,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     }
   }
 
+  /// Submit profile with image, bio, and age
   Future<void> submitProfile() async {
     if (_image == null || _bioController.text.isEmpty || _ageController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -118,7 +152,10 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                   ? Image.file(_image!, width: 150, height: 150, fit: BoxFit.cover)
                   : Container(width: 150, height: 150, color: Colors.grey),
               const SizedBox(height: 10),
-              ElevatedButton(onPressed: pickImage, child: const Text("Pick Image")),
+              ElevatedButton(
+                onPressed: pickImageOption,
+                child: const Text("Pick Image"),
+              ),
               const SizedBox(height: 20),
               TextField(
                 controller: _bioController,
@@ -134,7 +171,10 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               const SizedBox(height: 20),
               isLoading
                   ? const CircularProgressIndicator()
-                  : ElevatedButton(onPressed: submitProfile, child: const Text("Submit")),
+                  : ElevatedButton(
+                      onPressed: submitProfile,
+                      child: const Text("Submit"),
+                    ),
             ],
           ),
         ),
