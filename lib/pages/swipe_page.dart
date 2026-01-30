@@ -71,14 +71,23 @@ class _SwipePageState extends State<SwipePage> {
         borderRadius: BorderRadius.circular(24),
         child: Stack(
           children: [
-            // Background image
+            // Background image with placeholder if missing
             Positioned.fill(
               child: user['profile_image'] != null
                   ? Image.network(
                       user['profile_image'],
                       fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey.shade300,
+                          child: const Icon(Icons.person, size: 60, color: Colors.white54),
+                        );
+                      },
                     )
-                  : Container(color: Colors.grey.shade300),
+                  : Container(
+                      color: Colors.grey.shade300,
+                      child: const Icon(Icons.person, size: 60, color: Colors.white54),
+                    ),
             ),
 
             // Gradient overlay
@@ -90,7 +99,6 @@ class _SwipePageState extends State<SwipePage> {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      // ignore: deprecated_member_use
                       Colors.black.withOpacity(0.85),
                     ],
                   ),
@@ -106,8 +114,9 @@ class _SwipePageState extends State<SwipePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Username + Age
                   Text(
-                    user['username'] ?? "Unknown",
+                    "${user['username'] ?? "Unknown"}, ${user['age'] ?? 'N/A'}",
                     style: const TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
@@ -115,6 +124,7 @@ class _SwipePageState extends State<SwipePage> {
                     ),
                   ),
                   const SizedBox(height: 6),
+                  // Bio
                   Text(
                     user['bio'] ?? "",
                     maxLines: 2,

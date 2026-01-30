@@ -13,39 +13,35 @@ class ApiService {
     return prefs.getString("token");
   }
 
-
   // Login
-static Future<Map<String, dynamic>> login(String username, String password) async {
-  final response = await http.post(
-    Uri.parse("$baseUrl/login/"),
-    headers: {"Content-Type": "application/json"},
-    body: jsonEncode({
-      "username": username,
-      "password": password,
-    }),
-  );
+  static Future<Map<String, dynamic>> login(String username, String password) async {
+    final response = await http.post(
+      Uri.parse("$baseUrl/login/"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "username": username,
+        "password": password,
+      }),
+    );
 
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
 
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
+      // SAVE TOKEN HERE
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString("token", data['access']);
 
-    // SAVE TOKEN HERE
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString("token", data['access']);
-
-    return {
-      "success": true,
-      "data": data,
-    };
-  } else {
-    return {
-      "success": false,
-      "error": "Invalid username or password",
-    };
+      return {
+        "success": true,
+        "data": data,
+      };
+    } else {
+      return {
+        "success": false,
+        "error": "Invalid username or password",
+      };
+    }
   }
-}
-
-
 
   // Get swipe users
   static Future<List<Map<String, dynamic>>> getSwipeUsers() async {
@@ -60,15 +56,24 @@ static Future<Map<String, dynamic>> login(String username, String password) asyn
       },
     );
 
-
     if (response.statusCode == 200) {
       final List decoded = jsonDecode(response.body);
-      return decoded.map((e) => e as Map<String, dynamic>).toList();
+
+      // Ensure each user has profile_image, bio, and age
+      return decoded.map((e) {
+        final Map<String, dynamic> user = e as Map<String, dynamic>;
+        return {
+          "id": user['id'],
+          "username": user['username'] ?? "Unknown",
+          "age": user['age'] ?? "N/A",
+          "bio": user['bio'] ?? "",
+          "profile_image": user['profile_image'], // can be null
+        };
+      }).toList();
     } else {
       throw Exception("Failed to load users: ${response.body}");
     }
   }
-
 
   // Like user
   static Future<Map<String, dynamic>> likeUser(int userId) async {
@@ -84,12 +89,11 @@ static Future<Map<String, dynamic>> login(String username, String password) asyn
       body: jsonEncode({"to_user_id": userId}),
     );
 
-
     final data = jsonDecode(response.body);
 
     return {
       "success": response.statusCode == 201,
-      "matched": data['success']?.contains("match") ?? false,
+      "matched": data['success']?.toString().contains("match") ?? false,
       "error": data['error']
     };
   }
