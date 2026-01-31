@@ -10,16 +10,12 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  // Controls page swipe
   final PageController _pageController = PageController();
-
-  // Track current page index
   int _currentPage = 0;
 
-  // Brand color
-  final Color primaryColor = const Color.fromARGB(255, 230, 230, 35);
+  // Forest green primary color
+  final Color primaryColor = const Color(0xFF2F855A);
 
-  // Onboarding content
   final List<Map<String, String>> onboardingData = [
     {
       "image": "assets/images/onboard1.png",
@@ -54,7 +50,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPressed: _completeOnboarding,
                 child: Text(
                   "Skip",
-                  style: TextStyle(color: primaryColor),
+                  style: TextStyle(
+                    color: primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -111,10 +110,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       );
                     }
                   },
-                  child: Text(
-                    _currentPage == onboardingData.length - 1
-                        ? "Get Started"
-                        : "Next",
+                  child: const Text(
+                    "Next",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white, // White text
+                    ),
                   ),
                 ),
               ),
@@ -133,15 +135,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     required String title,
     required String description,
   }) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Image
-          Image.asset(image, height: 260),
+          // Image with border, radius, and subtle shadow
+          Container(
+            height: 260,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: primaryColor, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: Image.asset(image, fit: BoxFit.cover),
+          ),
           const SizedBox(height: 40),
 
           // Title
@@ -151,7 +166,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.bold,
-              color: isDarkMode ? Colors.white : Colors.black,
+              color: primaryColor, // Forest green title
             ),
           ),
           const SizedBox(height: 16),
@@ -162,7 +177,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
-              color: isDarkMode ? Colors.white70 : Colors.grey,
+              color: Colors.grey[700],
             ),
           ),
         ],
