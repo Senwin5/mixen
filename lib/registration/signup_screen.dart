@@ -1,50 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:mixen/pages/completeprofilepage.dart';
+import 'package:mixen/pages/swipe_page.dart';
 import '../services/api_service.dart';
-import '../pages/swipe_page.dart';
-// Import your signup page
-import '../registration/signup_screen.dart';
+import 'login_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   final usernameController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  String message = "";
   bool isLoading = false;
   bool obscurePassword = true;
   bool isDarkMode = false; // 🌙 dark mode toggle
+  String message = "";
 
   static const forestGreen = Color(0xFF2F855A);
 
-  void login() async {
+  void signup() async {
     setState(() {
       isLoading = true;
       message = "";
     });
 
     try {
-      final result = await ApiService.login(
-        usernameController.text,
-        passwordController.text,
+      final result = await ApiService.signup(
+        usernameController.text.trim(),
+        emailController.text.trim(),
+        passwordController.text.trim(),
       );
 
       if (result['success'] == true) {
         setState(() {
-          message = "Login successful ✅";
+          message = "Signup successful ✅";
         });
 
-        final profileComplete =
-            result['data']['profile_complete'] ?? false;
+        final profileComplete = result['data']['profile_complete'] ?? false;
 
         if (!mounted) return;
 
+        // Navigate user
         if (!profileComplete) {
           Navigator.pushReplacement(
             context,
@@ -62,12 +64,13 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } else {
         setState(() {
-          message = "Login failed ❌: ${result['error']}";
+          // Show backend or decode error
+          message = result['error'] ?? "Signup failed ❌";
         });
       }
     } catch (e) {
       setState(() {
-        message = "An error occurred: $e";
+        message = "An unexpected error occurred: $e";
       });
     } finally {
       setState(() {
@@ -76,19 +79,16 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Theme(
       data: isDarkMode
           ? ThemeData.dark().copyWith(
-              colorScheme: const ColorScheme.dark(
-                primary: forestGreen,
-              ),
+              colorScheme: const ColorScheme.dark(primary: forestGreen),
             )
           : ThemeData.light().copyWith(
-              colorScheme: const ColorScheme.light(
-                primary: forestGreen,
-              ),
+              colorScheme: const ColorScheme.light(primary: forestGreen),
             ),
       child: Builder(
         builder: (context) {
@@ -112,9 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         alignment: Alignment.topRight,
                         child: IconButton(
                           icon: Icon(
-                            isDarkMode
-                                ? Icons.light_mode
-                                : Icons.dark_mode,
+                            isDarkMode ? Icons.light_mode : Icons.dark_mode,
                           ),
                           onPressed: () {
                             setState(() {
@@ -132,12 +130,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           Icon(
                             Icons.favorite_outline,
                             size: 72,
-                            color:
-                                Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           const SizedBox(height: 12),
                           const Text(
-                            "Welcome Back",
+                            "Create Account",
                             style: TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.bold,
@@ -145,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            "Login to continue",
+                            "Sign up to get started",
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey.shade500,
@@ -156,12 +153,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 32),
 
-                      // Login Card
+                      // Signup Card
                       Card(
                         elevation: isDarkMode ? 2 : 6,
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(20),
@@ -172,9 +168,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 label: "Username",
                                 icon: Icons.person_outline,
                               ),
-
                               const SizedBox(height: 16),
-
+                              AppInputField(
+                                controller: emailController,
+                                label: "Email",
+                                icon: Icons.email_outlined,
+                              ),
+                              const SizedBox(height: 16),
                               AppInputField(
                                 controller: passwordController,
                                 label: "Password",
@@ -188,61 +188,77 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      obscurePassword =
-                                          !obscurePassword;
+                                      obscurePassword = !obscurePassword;
                                     });
                                   },
                                 ),
                               ),
-
                               const SizedBox(height: 24),
 
-                              // ✅ Login Button with loader
+                              // Signup Button
                               SizedBox(
                                 width: double.infinity,
                                 height: 48,
                                 child: ElevatedButton(
-                                  onPressed:
-                                      isLoading ? null : login,
-                                  style:
-                                      ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        forestGreen,
-                                    shape:
-                                        RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(
-                                              12),
+                                  onPressed: isLoading ? null : signup,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: forestGreen,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                   child: AnimatedSwitcher(
-                                    duration: const Duration(
-                                        milliseconds: 250),
+                                    duration:
+                                        const Duration(milliseconds: 250),
                                     child: isLoading
                                         ? const SizedBox(
-                                            key: ValueKey(
-                                                "loader"),
+                                            key: ValueKey("loader"),
                                             height: 22,
                                             width: 22,
-                                            child:
-                                                CircularProgressIndicator(
+                                            child: CircularProgressIndicator(
                                               strokeWidth: 2.5,
-                                              color:
-                                                  Colors.white,
+                                              color: Colors.white,
                                             ),
                                           )
                                         : const Text(
-                                            "Login",
-                                            key:
-                                                ValueKey("text"),
+                                            "Sign Up",
+                                            key: ValueKey("text"),
                                             style: TextStyle(
                                               fontSize: 16,
-                                              color:
-                                                  Colors.white,
+                                              color: Colors.white,
                                             ),
                                           ),
                                   ),
                                 ),
+                              ),
+
+                              const SizedBox(height: 16),
+
+                              // Already have account? Login
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text("Already have an account? "),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              const LoginScreen(),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      "Login",
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(context).colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
 
                               if (message.isNotEmpty) ...[
@@ -251,8 +267,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   message,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    color: message.contains(
-                                            "successful")
+                                    color: message.contains("successful")
                                         ? Colors.green
                                         : Colors.red,
                                   ),
@@ -262,41 +277,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-
-                      const SizedBox(height: 16),
-
-                      // ✅ Sign Up Prompt
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            "Don't have an account? ",
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              // Navigate to Signup page
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const SignupScreen(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              "Sign Up",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
@@ -309,6 +289,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
+// Reuse the same AppInputField widget as in LoginScreen
 class AppInputField extends StatelessWidget {
   final TextEditingController controller;
   final String label;

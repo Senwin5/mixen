@@ -44,8 +44,52 @@ class ApiService {
     }
   }
 
+  // ✅ Signup
+static Future<Map<String, dynamic>> signup(
+    String username, String email, String password) async {
+  final response = await http.post(
+    Uri.parse("$baseUrl/register/"), // make sure backend endpoint ends with /
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({
+      "username": username,
+      "email": email,
+      "password": password,
+    }),
+  );
 
-  
+  try {
+    // Try to decode JSON
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      // Save token if backend returns one after signup
+      if (data.containsKey('access')) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("token", data['access']);
+      }
+
+      return {
+        "success": true,
+        "data": data,
+      };
+    } else {
+      return {
+        "success": false,
+        "error": data['error'] ?? "Signup failed",
+      };
+    }
+  } catch (e) {
+    // Response is not JSON (HTML page, debug page, etc)
+    return {
+      "success": false,
+      "error":
+          "Invalid response from server: ${response.body} (status code ${response.statusCode})",
+    };
+  }
+}
+
+
+
 
   // Get swipe users
   static Future<List<Map<String, dynamic>>> getSwipeUsers() async {
@@ -102,13 +146,15 @@ class ApiService {
     };
   }
 
-  // Save token after login
+  // Save token manually
   static Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("token", token);
   }
 
+  // Placeholder for profile image upload
   static Future<dynamic> uploadProfileImage(File file) async {}
 
+  // Placeholder for updating profile
   static Future<dynamic> updateProfile({required String bio, required int age}) async {}
 }
