@@ -58,21 +58,63 @@ class _UploadProfileImagePageState extends State<UploadProfileImagePage> {
 
   @override
   Widget build(BuildContext context) {
+    const Color forestGreen = Color(0xFF2F855A);
+    const Color backgroundColor = Color(0xFFF3FDE3); // match other pages
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Upload Profile Image")),
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        backgroundColor: forestGreen,
+        title: const Text("Upload Profile Image"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _image != null
-                ? Image.file(_image!, width: 150, height: 150, fit: BoxFit.cover)
-                : Container(width: 150, height: 150, color: Colors.grey),
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(75),
+                    child: Image.file(
+                      _image!,
+                      width: 150,
+                      height: 150,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Container(
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(75),
+                    ),
+                  ),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: pickImage, child: const Text("Pick Image")),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: forestGreen,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(150, 48),
+              ),
+              onPressed: pickImage,
+              child: const Text("Pick Image"),
+            ),
             const SizedBox(height: 10),
             isLoading
                 ? const CircularProgressIndicator()
-                : ElevatedButton(onPressed: uploadImage, child: const Text("Upload")),
+                : ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: forestGreen,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(150, 48),
+                    ),
+                    onPressed: uploadImage,
+                    child: const Text("Upload"),
+                  ),
           ],
         ),
       ),

@@ -18,6 +18,9 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   final TextEditingController _ageController = TextEditingController();
   File? _image;
   bool isLoading = false;
+  bool isDarkMode = false; // 🌙 dark mode toggle
+
+  static const forestGreen = Color(0xFF2F855A);
 
   /// Show bottom sheet to choose between Camera and Gallery
   Future<void> pickImageOption() async {
@@ -53,10 +56,8 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
       final sdk = androidInfo.version.sdkInt;
 
       if (sdk >= 33) {
-        // Android 13+
         return await Permission.photos.request().isGranted;
       } else {
-        // Android 12 and below
         return await Permission.storage.request().isGranted;
       }
     } else if (Platform.isIOS) {
@@ -97,15 +98,17 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to pick image: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed to pick image: $e")));
     }
   }
 
   /// Submit profile with image, bio, and age
   Future<void> submitProfile() async {
-    if (_image == null || _bioController.text.isEmpty || _ageController.text.isEmpty) {
+    if (_image == null ||
+        _bioController.text.isEmpty ||
+        _ageController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Fill all fields and pick an image!")),
       );
@@ -131,9 +134,9 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
 
     if (mounted) setState(() => isLoading = false);
@@ -141,37 +144,113 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final Color bgColor = isDarkMode ? Colors.black : const Color(0xFFF3FDE3);
+    final Color textFieldColor = isDarkMode ? Colors.white : Colors.black;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Complete Your Profile")),
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        backgroundColor: bgColor,
+        elevation: 0,
+        title: Text(
+          "Complete Your Profile",
+          style: TextStyle(color: textFieldColor),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              color: textFieldColor,
+            ),
+            onPressed: () => setState(() => isDarkMode = !isDarkMode),
+          ),
+        ],
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               _image != null
-                  ? Image.file(_image!, width: 150, height: 150, fit: BoxFit.cover)
-                  : Container(width: 150, height: 150, color: Colors.grey),
-              const SizedBox(height: 10),
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(75),
+                      child: Image.file(
+                        _image!,
+                        width: 150,
+                        height: 150,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(75),
+                      ),
+                    ),
+              const SizedBox(height: 12),
+
+              // ✅ Pick Image Button (white text always)
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: forestGreen,
+                  foregroundColor: Colors.white, // white text
+                  minimumSize: const Size(double.infinity, 48),
+                ),
                 onPressed: pickImageOption,
                 child: const Text("Pick Image"),
               ),
+
               const SizedBox(height: 20),
+
+              // Bio TextField (text changes based on dark/light mode)
               TextField(
                 controller: _bioController,
-                decoration: const InputDecoration(labelText: "Bio"),
+                decoration: InputDecoration(
+                  labelText: "Bio",
+                  labelStyle: TextStyle(color: textFieldColor),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: textFieldColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: textFieldColor, width: 2),
+                  ),
+                ),
                 maxLines: 3,
+                style: TextStyle(color: textFieldColor),
               ),
+
               const SizedBox(height: 10),
+
+              // Age TextField (text changes based on dark/light mode)
               TextField(
                 controller: _ageController,
-                decoration: const InputDecoration(labelText: "Age"),
+                decoration: InputDecoration(
+                  labelText: "Age",
+                  labelStyle: TextStyle(color: textFieldColor),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: textFieldColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: textFieldColor, width: 2),
+                  ),
+                ),
                 keyboardType: TextInputType.number,
+                style: TextStyle(color: textFieldColor),
               ),
+
               const SizedBox(height: 20),
+
+              // ✅ Submit Button (white text always)
               isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: forestGreen,
+                        foregroundColor: Colors.white, // white text
+                        minimumSize: const Size(double.infinity, 48),
+                      ),
                       onPressed: submitProfile,
                       child: const Text("Submit"),
                     ),

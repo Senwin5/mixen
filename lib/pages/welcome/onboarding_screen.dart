@@ -151,6 +151,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               border: Border.all(color: primaryColor, width: 2),
               boxShadow: [
                 BoxShadow(
+                  // ignore: deprecated_member_use
                   color: Colors.black.withOpacity(0.15),
                   blurRadius: 10,
                   offset: const Offset(0, 5),

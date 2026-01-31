@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Homepage extends StatefulWidget {
-  final Function(int)? onNavigate; // callback from BottomNav
-
   const Homepage({super.key, this.onNavigate});
+  final Function(int)? onNavigate; // optional callback
 
   @override
   State<Homepage> createState() => _HomepageState();
@@ -13,15 +12,17 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDarkMode ? Colors.black : Colors.grey.shade100;
+    final Color textColor = isDarkMode ? Colors.white : Colors.black;
 
     return Scaffold(
-      backgroundColor: isDarkMode ? Colors.black : Colors.grey.shade100,
+      backgroundColor: bgColor,
       appBar: AppBar(
-        title: const Text("Misen"),
+        title: const Text("Mixen"),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        foregroundColor: isDarkMode ? Colors.white : Colors.black,
+        foregroundColor: textColor,
       ),
       body: SafeArea(
         child: Padding(
@@ -32,49 +33,47 @@ class _HomepageState extends State<Homepage> {
               Text(
                 "Welcome back 👋",
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.white : Colors.black,
+                  color: textColor,
                 ),
               ),
               const SizedBox(height: 6),
               Text(
                 "What would you like to do today?",
                 style: TextStyle(
-                  fontSize: 14,
-                  color: isDarkMode ? Colors.white70 : Colors.grey,
+                  fontSize: 16,
+                  color: isDarkMode ? Colors.white70 : Colors.grey.shade700,
                 ),
               ),
               const SizedBox(height: 24),
               Expanded(
                 child: GridView.count(
                   crossAxisCount: 2,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  childAspectRatio: 1.1,
+                  mainAxisSpacing: 20,
+                  crossAxisSpacing: 20,
+                  childAspectRatio: 1,
                   children: [
                     _buildActionCard(
-                      icon: Icons.chat,
+                      icon: Icons.chat_bubble_outline,
                       title: "Chats",
                       color: Colors.blue,
                       onTap: () => widget.onNavigate?.call(1),
                     ),
                     _buildActionCard(
-                      icon: Icons.explore,
+                      icon: Icons.explore_outlined,
                       title: "Explore",
                       color: Colors.orange,
                       onTap: () => widget.onNavigate?.call(2),
                     ),
                     _buildActionCard(
-                      icon: Icons.monetization_on,
+                      icon: Icons.monetization_on_outlined,
                       title: "Coins",
                       color: Colors.purple,
-                      onTap: () {
-                       
-                      },
+                      onTap: () {},
                     ),
                     _buildActionCard(
-                      icon: Icons.person,
+                      icon: Icons.person_outline,
                       title: "Profile",
                       color: Colors.green,
                       onTap: () => widget.onNavigate?.call(3),
@@ -100,19 +99,26 @@ class _HomepageState extends State<Homepage> {
       child: Container(
         decoration: BoxDecoration(
           // ignore: deprecated_member_use
-          color: color.withOpacity(0.1),
+          color: color.withOpacity(0.15),
           borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 40, color: color),
-            const SizedBox(height: 12),
+            Icon(icon, size: 42, color: color),
+            const SizedBox(height: 14),
             Text(
               title,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),

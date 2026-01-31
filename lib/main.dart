@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mixen/pages/welcome/onboarding_screen.dart';
-//import 'package:mixen/pages/bottom_nav/bottom_nav.dart';
-// ignore: unused_import
+//import 'package:mixen/pages/completeprofilepage.dart';
+//import 'package:mixen/pages/upload_profile_image_page.dart';
+//import 'package:mixen/pages/swipe_page.dart';
+//import 'package:mixen/pages/welcome/onboarding_screen.dart';
+import 'package:mixen/pages/bottom_nav/bottom_nav.dart';
+//ignore: unused_import
 //import 'package:mixen/pages/homepage.dart';
 //import 'package:mixen/pages/welcome/splash_screen.dart';
 //import 'package:mixen/registration/login_screen.dart';
@@ -27,8 +30,11 @@ class MyApp extends StatelessWidget {
       //home: const Homepage( ),
       //home: const LoginScreen(),
       //home: const SplashScreen (),
-      //home: const BottomNav()
-      home: const OnboardingScreen()
+      home: const BottomNav()
+      //home: const SwipePage()
+      //home: const UploadProfileImagePage()
+      //home: const CompleteProfilePage()
+      //home: const OnboardingScreen()
     );
   }
 }

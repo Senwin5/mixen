@@ -4,8 +4,6 @@ import '../chat_page.dart';
 import '../swipe_page.dart';
 import '../profile_page.dart';
 
-
-
 class BottomNav extends StatefulWidget {
   const BottomNav({super.key});
 
@@ -24,9 +22,9 @@ class _BottomNavState extends State<BottomNav> {
 
   @override
   Widget build(BuildContext context) {
-    // Pages list
+    // Pages list - instantiate Homepage and pass callback
     final pages = [
-      Homepage(onNavigate: switchTab), // pass callback
+      Homepage(onNavigate: switchTab), // pass callback to allow homepage cards to switch tabs
       const ChatPage(),
       const SwipePage(),
       const ProfilePage(),
@@ -43,7 +41,7 @@ class _BottomNavState extends State<BottomNav> {
         elevation: 10,
         selectedFontSize: 12,
         unselectedFontSize: 12,
-        onTap: switchTab, // directly call switchTab
+        onTap: switchTab,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
