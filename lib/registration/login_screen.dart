@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mixen/pages/completeprofilepage.dart';
 import '../services/api_service.dart';
 import '../pages/swipe_page.dart';
-// Import your signup page
 import '../registration/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -22,6 +21,9 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isDarkMode = false; // 🌙 dark mode toggle
 
   static const forestGreen = Color(0xFF2F855A);
+
+  // Light mode background color
+  final Color lightBackgroundColor = const Color.fromARGB(255, 243, 253, 227);
 
   void login() async {
     setState(() {
@@ -81,40 +83,34 @@ class _LoginScreenState extends State<LoginScreen> {
     return Theme(
       data: isDarkMode
           ? ThemeData.dark().copyWith(
-              colorScheme: const ColorScheme.dark(
-                primary: forestGreen,
-              ),
+              colorScheme: const ColorScheme.dark(primary: forestGreen),
             )
           : ThemeData.light().copyWith(
-              colorScheme: const ColorScheme.light(
-                primary: forestGreen,
-              ),
+              colorScheme: const ColorScheme.light(primary: forestGreen),
             ),
-      child: Builder(
-        builder: (context) {
-          final width = MediaQuery.of(context).size.width;
-
-          return Scaffold(
-            body: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: ConstrainedBox(
+      child: Scaffold(
+        backgroundColor: isDarkMode ? Colors.black : lightBackgroundColor,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: Builder(
+              builder: (context) {
+                final width = MediaQuery.of(context).size.width;
+                return ConstrainedBox(
                   constraints: BoxConstraints(
                     maxWidth: width > 600 ? 420 : double.infinity,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const SizedBox(height: 24),
-
-                      // 🌙 Dark mode toggle
+                      // 🌙 Dark mode toggle with spacing
+                      const SizedBox(height: 16),
                       Align(
                         alignment: Alignment.topRight,
                         child: IconButton(
                           icon: Icon(
-                            isDarkMode
-                                ? Icons.light_mode
-                                : Icons.dark_mode,
+                            isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                            size: 28,
                           ),
                           onPressed: () {
                             setState(() {
@@ -123,45 +119,42 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                       ),
-
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
 
                       // Header
-                      Column(
-                        children: [
-                          Icon(
-                            Icons.favorite_outline,
-                            size: 72,
-                            color:
-                                Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            "Welcome Back",
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
+          
+                        Column(
+                          children: [
+                            Icon(
+                              Icons.favorite_outline,
+                              size: 72,
+                              color: forestGreen, // ✅ Match button color
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            "Login to continue",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey.shade500,
+                            const SizedBox(height: 12),
+                            Text(
+                              "Welcome Back",
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: forestGreen, // ✅ Match button color
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
+                            const SizedBox(height: 6),
+                            Text(
+                              "Login to continue",
+                            ),
+                          ],
+                        ),
+
 
                       const SizedBox(height: 32),
 
                       // Login Card
                       Card(
+                        color: isDarkMode ? Colors.grey[900] : Colors.white,
                         elevation: isDarkMode ? 2 : 6,
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(20),
@@ -172,9 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 label: "Username",
                                 icon: Icons.person_outline,
                               ),
-
                               const SizedBox(height: 16),
-
                               AppInputField(
                                 controller: passwordController,
                                 label: "Password",
@@ -188,57 +179,43 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      obscurePassword =
-                                          !obscurePassword;
+                                      obscurePassword = !obscurePassword;
                                     });
                                   },
                                 ),
                               ),
-
                               const SizedBox(height: 24),
 
-                              // ✅ Login Button with loader
+                              // Login Button with loader
                               SizedBox(
                                 width: double.infinity,
                                 height: 48,
                                 child: ElevatedButton(
-                                  onPressed:
-                                      isLoading ? null : login,
-                                  style:
-                                      ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        forestGreen,
-                                    shape:
-                                        RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(
-                                              12),
+                                  onPressed: isLoading ? null : login,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: forestGreen,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                   child: AnimatedSwitcher(
-                                    duration: const Duration(
-                                        milliseconds: 250),
+                                    duration: const Duration(milliseconds: 250),
                                     child: isLoading
                                         ? const SizedBox(
-                                            key: ValueKey(
-                                                "loader"),
+                                            key: ValueKey("loader"),
                                             height: 22,
                                             width: 22,
-                                            child:
-                                                CircularProgressIndicator(
+                                            child: CircularProgressIndicator(
                                               strokeWidth: 2.5,
-                                              color:
-                                                  Colors.white,
+                                              color: Colors.white,
                                             ),
                                           )
                                         : const Text(
                                             "Login",
-                                            key:
-                                                ValueKey("text"),
+                                            key: ValueKey("text"),
                                             style: TextStyle(
                                               fontSize: 16,
-                                              color:
-                                                  Colors.white,
+                                              color: Colors.white,
                                             ),
                                           ),
                                   ),
@@ -251,8 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   message,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    color: message.contains(
-                                            "successful")
+                                    color: message.contains("successful")
                                         ? Colors.green
                                         : Colors.red,
                                   ),
@@ -265,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 16),
 
-                      // ✅ Sign Up Prompt
+                      // Sign Up Prompt
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -275,7 +251,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              // Navigate to Signup page
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -288,8 +263,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color:
-                                    Theme.of(context).colorScheme.primary,
+                                color: forestGreen,
                               ),
                             ),
                           ),
@@ -299,11 +273,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 24),
                     ],
                   ),
-                ),
-              ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
@@ -330,9 +304,19 @@ class AppInputField extends StatelessWidget {
     return TextField(
       controller: controller,
       obscureText: obscureText,
+      style: TextStyle(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white
+            : Colors.black,
+      ),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon),
+        prefixIcon: Icon(
+          icon,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white70
+              : Colors.grey.shade700,
+        ),
         suffixIcon: suffix,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

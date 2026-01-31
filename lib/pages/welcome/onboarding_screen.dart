@@ -16,6 +16,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // Forest green primary color
   final Color primaryColor = const Color(0xFF2F855A);
 
+  // Soft cream background
+  final Color backgroundColor = const Color.fromARGB(255, 243, 253, 227);
+
   final List<Map<String, String>> onboardingData = [
     {
       "image": "assets/images/onboard1.png",
@@ -24,22 +27,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
     {
       "image": "assets/images/onboard2.png",
-      "title": "Manage Projects",
-      "description": "Track your projects and progress in one place."
+      "title": "Meet Your Soulmate",
+      "description": "Discover meaningful connections with people who truly understand you."
     },
     {
       "image": "assets/images/onboard3.png",
-      "title": "Grow Faster",
-      "description": "Build meaningful connections and grow your business."
+      "title": "Grow Together",
+      "description": "Build meaningful relationships and cherish every moment."
     },
   ];
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
-      backgroundColor: isDarkMode ? Colors.black : Colors.white,
+      backgroundColor: backgroundColor, // Updated background
       body: SafeArea(
         child: Column(
           children: [
@@ -110,12 +111,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       );
                     }
                   },
-                  child: const Text(
-                    "Next",
-                    style: TextStyle(
+                  child: Text(
+                    _currentPage == onboardingData.length - 1
+                        ? "Get Started"
+                        : "Next",
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white, // White text
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -193,7 +196,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       height: 8,
       width: _currentPage == index ? 24 : 8,
       decoration: BoxDecoration(
-        color: _currentPage == index ? primaryColor : Colors.grey,
+        color: _currentPage == index ? primaryColor : const Color.fromARGB(255, 158, 158, 158),
         borderRadius: BorderRadius.circular(12),
       ),
     );

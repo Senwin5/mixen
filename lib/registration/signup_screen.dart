@@ -4,7 +4,6 @@ import 'package:mixen/pages/swipe_page.dart';
 import '../services/api_service.dart';
 import 'login_screen.dart';
 
-
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
@@ -46,7 +45,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
         if (!mounted) return;
 
-        // Navigate user
         if (!profileComplete) {
           Navigator.pushReplacement(
             context,
@@ -64,7 +62,6 @@ class _SignupScreenState extends State<SignupScreen> {
         }
       } else {
         setState(() {
-          // Show backend or decode error
           message = result['error'] ?? "Signup failed ❌";
         });
       }
@@ -79,9 +76,11 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
+    // Dynamic background based on dark mode
+    final Color bgColor = isDarkMode ? Colors.black : const Color(0xFFF3FDE3);
+
     return Theme(
       data: isDarkMode
           ? ThemeData.dark().copyWith(
@@ -90,29 +89,29 @@ class _SignupScreenState extends State<SignupScreen> {
           : ThemeData.light().copyWith(
               colorScheme: const ColorScheme.light(primary: forestGreen),
             ),
-      child: Builder(
-        builder: (context) {
-          final width = MediaQuery.of(context).size.width;
-
-          return Scaffold(
-            body: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: ConstrainedBox(
+      child: Scaffold(
+        backgroundColor: bgColor, // Dynamic background
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: Builder(
+              builder: (context) {
+                final width = MediaQuery.of(context).size.width;
+                return ConstrainedBox(
                   constraints: BoxConstraints(
                     maxWidth: width > 600 ? 420 : double.infinity,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const SizedBox(height: 24),
-
-                      // 🌙 Dark mode toggle
+                      // 🌙 Dark mode toggle with spacing
+                      const SizedBox(height: 16),
                       Align(
                         alignment: Alignment.topRight,
                         child: IconButton(
                           icon: Icon(
                             isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                            size: 28,
                           ),
                           onPressed: () {
                             setState(() {
@@ -121,8 +120,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           },
                         ),
                       ),
-
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
 
                       // Header
                       Column(
@@ -130,23 +128,20 @@ class _SignupScreenState extends State<SignupScreen> {
                           Icon(
                             Icons.favorite_outline,
                             size: 72,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: isDarkMode ? Colors.white : forestGreen,
                           ),
                           const SizedBox(height: 12),
-                          const Text(
+                          Text(
                             "Create Account",
                             style: TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.bold,
+                              color: isDarkMode ? Colors.white : forestGreen,
                             ),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             "Sign up to get started",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey.shade500,
-                            ),
                           ),
                         ],
                       ),
@@ -155,6 +150,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
                       // Signup Card
                       Card(
+                        color: isDarkMode ? Colors.grey[900] : Colors.white,
                         elevation: isDarkMode ? 2 : 6,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -167,12 +163,14 @@ class _SignupScreenState extends State<SignupScreen> {
                                 controller: usernameController,
                                 label: "Username",
                                 icon: Icons.person_outline,
+                                obscureText: false,
                               ),
                               const SizedBox(height: 16),
                               AppInputField(
                                 controller: emailController,
                                 label: "Email",
                                 icon: Icons.email_outlined,
+                                obscureText: false,
                               ),
                               const SizedBox(height: 16),
                               AppInputField(
@@ -208,8 +206,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                     ),
                                   ),
                                   child: AnimatedSwitcher(
-                                    duration:
-                                        const Duration(milliseconds: 250),
+                                    duration: const Duration(milliseconds: 250),
                                     child: isLoading
                                         ? const SizedBox(
                                             key: ValueKey("loader"),
@@ -244,16 +241,14 @@ class _SignupScreenState extends State<SignupScreen> {
                                       Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) =>
-                                              const LoginScreen(),
+                                          builder: (_) => const LoginScreen(),
                                         ),
                                       );
                                     },
                                     child: Text(
                                       "Login",
                                       style: TextStyle(
-                                        color:
-                                            Theme.of(context).colorScheme.primary,
+                                        color: forestGreen,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -279,17 +274,17 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                     ],
                   ),
-                ),
-              ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
 }
 
-// Reuse the same AppInputField widget as in LoginScreen
+// Reuse the same AppInputField widget
 class AppInputField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
