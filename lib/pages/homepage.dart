@@ -25,77 +25,82 @@ class _HomepageState extends State<Homepage> {
         foregroundColor: textColor,
       ),
       body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            image: const DecorationImage(
-              image: AssetImage('assets/images/onboard1.png'),
-              fit: BoxFit.cover,
+        child: Stack(
+          children: [
+            // Background image
+            Opacity(
               opacity: 0.08,
+              child: Image.asset(
+                'assets/images/onboard1.png',
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+              ),
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Welcome back 👋",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Welcome back 👋",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  "What would you like to do today?",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: isDarkMode ? Colors.white70 : Colors.grey.shade700,
+                  const SizedBox(height: 6),
+                  Text(
+                    "What would you like to do today?",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: isDarkMode ? Colors.white70 : Colors.grey.shade700,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 20,
-                    childAspectRatio: 1,
-                    children: [
-                      _buildActionCard(
-                        icon: Icons.chat_bubble_outline,
-                        title: "Chats",
-                        color: Colors.blue,
-                        image: 'assets/images/onboard1.png',
-                        onTap: () => widget.onNavigate?.call(1),
-                      ),
-                      _buildActionCard(
-                        icon: Icons.explore_outlined,
-                        title: "Explore",
-                        color: Colors.orange,
-                        image: 'assets/images/explore.png',
-                        onTap: () => widget.onNavigate?.call(2),
-                      ),
-                      _buildActionCard(
-                        icon: Icons.monetization_on_outlined,
-                        title: "Coins",
-                        color: Colors.purple,
-                        image: 'assets/images/coins.png',
-                        onTap: () {},
-                      ),
-                      _buildActionCard(
-                        icon: Icons.person_outline,
-                        title: "Profile",
-                        color: Colors.green,
-                        image: 'assets/images/profile.png',
-                        onTap: () => widget.onNavigate?.call(3),
-                      ),
-                    ],
+                  const SizedBox(height: 24),
+                  Expanded(
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 20,
+                      childAspectRatio: 1,
+                      children: [
+                        _buildActionCard(
+                          icon: Icons.chat_bubble_outline,
+                          title: "Chats",
+                          color: Colors.blue,
+                          image: 'assets/images/chat.png',
+                          onTap: () => widget.onNavigate?.call(1),
+                        ),
+                        _buildActionCard(
+                          icon: Icons.explore_outlined,
+                          title: "Explore",
+                          color: Colors.orange,
+                          image: 'assets/images/explore.png',
+                          onTap: () => widget.onNavigate?.call(2),
+                        ),
+                        _buildActionCard(
+                          icon: Icons.monetization_on_outlined,
+                          title: "Coins",
+                          color: Colors.purple,
+                          image: 'assets/images/coins.png',
+                          onTap: () {},
+                        ),
+                        _buildActionCard(
+                          icon: Icons.person_outline,
+                          title: "Profile",
+                          color: Colors.green,
+                          image: 'assets/images/profile.png',
+                          onTap: () => widget.onNavigate?.call(3),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -125,8 +130,10 @@ class _HomepageState extends State<Homepage> {
               ? DecorationImage(
                   image: AssetImage(image),
                   fit: BoxFit.cover,
-                  opacity: 0.1,
-                  onError: (_, __) {}, // ignore missing image errors
+                  colorFilter: ColorFilter.mode(
+                    Colors.white.withOpacity(0.15),
+                    BlendMode.dstATop,
+                  ),
                 )
               : null,
         ),
