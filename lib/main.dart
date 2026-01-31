@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+//import 'package:mixen/pages/bottom_nav/bottom_nav.dart';
 // ignore: unused_import
-import 'package:mixen/pages/homepage.dart';
+//import 'package:mixen/pages/homepage.dart';
 import 'package:mixen/pages/welcome/splash_screen.dart';
 //import 'package:mixen/registration/login_screen.dart';
+
 
 
 void main() {
@@ -24,6 +26,7 @@ class MyApp extends StatelessWidget {
       //home: const Homepage( ),
       //home: const LoginScreen(),
       home: const SplashScreen (),
+      //home: const BottomNav()
     );
   }
 }
