@@ -17,7 +17,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final Color primaryColor = const Color(0xFF2F855A);
 
   // Soft cream background
-  final Color backgroundColor = const Color.fromARGB(255, 243, 253, 227);
+  //final Color backgroundColor = const Color.fromARGB(255, 243, 253, 227);
 
   final List<Map<String, String>> onboardingData = [
     {
@@ -40,7 +40,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor, // Updated background
+      //backgroundColor: backgroundColor, // Updated background
       body: SafeArea(
         child: Column(
           children: [

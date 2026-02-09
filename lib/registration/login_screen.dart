@@ -23,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   static const forestGreen = Color(0xFF2F855A);
 
   // Light mode background color
-  final Color lightBackgroundColor = const Color.fromARGB(255, 243, 253, 227);
+  //final Color lightBackgroundColor = const Color.fromARGB(255, 243, 253, 227);
 
   void login() async {
     setState(() {
@@ -89,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
               colorScheme: const ColorScheme.light(primary: forestGreen),
             ),
       child: Scaffold(
-        backgroundColor: isDarkMode ? Colors.black : lightBackgroundColor,
+       // backgroundColor: isDarkMode ? Colors.black : lightBackgroundColor,
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),

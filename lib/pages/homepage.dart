@@ -117,6 +117,7 @@ class _HomepageState extends State<Homepage> {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
+          // ignore: deprecated_member_use
           color: color.withOpacity(0.15),
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [
@@ -131,6 +132,7 @@ class _HomepageState extends State<Homepage> {
                   image: AssetImage(image),
                   fit: BoxFit.cover,
                   colorFilter: ColorFilter.mode(
+                    // ignore: deprecated_member_use
                     Colors.white.withOpacity(0.15),
                     BlendMode.dstATop,
                   ),

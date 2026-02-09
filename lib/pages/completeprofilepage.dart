@@ -144,13 +144,13 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final Color bgColor = isDarkMode ? Colors.black : const Color(0xFFF3FDE3);
+    //final Color bgColor = isDarkMode ? Colors.black : const Color(0xFFF3FDE3);
     final Color textFieldColor = isDarkMode ? Colors.white : Colors.black;
 
     return Scaffold(
-      backgroundColor: bgColor,
+      //backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: bgColor,
+        //backgroundColor: bgColor,
         elevation: 0,
         title: Text(
           "Complete Your Profile",
