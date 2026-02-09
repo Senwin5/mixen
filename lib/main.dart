@@ -29,11 +29,12 @@ class MyApp extends StatelessWidget {
       ),
       //home: const Homepage( ),
       //home: const LoginScreen(),
+      //home: const SignupScreen(),
       //home: const SplashScreen (),
-      //home: const BottomNav()
-      //home: const SwipePage()
-      //home: const UploadProfileImagePage()
-      //home: const CompleteProfilePage()
+      //home: const BottomNav(),
+      //home: const SwipePage(),
+      //home: const UploadProfileImagePage(),
+      //home: const CompleteProfilePage(),
       home: const OnboardingScreen()
     );
   }

@@ -22,9 +22,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   static const forestGreen = Color(0xFF2F855A);
 
-  // Light mode background color
-  //final Color lightBackgroundColor = const Color.fromARGB(255, 243, 253, 227);
-
   void login() async {
     setState(() {
       isLoading = true;
@@ -89,7 +86,6 @@ class _LoginScreenState extends State<LoginScreen> {
               colorScheme: const ColorScheme.light(primary: forestGreen),
             ),
       child: Scaffold(
-       // backgroundColor: isDarkMode ? Colors.black : lightBackgroundColor,
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -103,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // 🌙 Dark mode toggle with spacing
+                      // 🌙 Dark mode toggle
                       const SizedBox(height: 16),
                       Align(
                         alignment: Alignment.topRight,
@@ -122,30 +118,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 24),
 
                       // Header
-          
-                        Column(
-                          children: [
-                            Icon(
-                              Icons.favorite_outline,
-                              size: 72,
-                              color: forestGreen, // ✅ Match button color
+                      Column(
+                        children: [
+                          Icon(
+                            Icons.favorite_outline,
+                            size: 72,
+                            color: forestGreen,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            "Welcome Back",
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: forestGreen,
                             ),
-                            const SizedBox(height: 12),
-                            Text(
-                              "Welcome Back",
-                              style: TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                                color: forestGreen, // ✅ Match button color
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              "Login to continue",
-                            ),
-                          ],
-                        ),
-
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            "Login to continue",
+                          ),
+                        ],
+                      ),
 
                       const SizedBox(height: 32),
 
@@ -186,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               const SizedBox(height: 24),
 
-                              // Login Button with loader
+                              // Login Button
                               SizedBox(
                                 width: double.infinity,
                                 height: 48,
@@ -221,6 +215,85 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                               ),
+
+                              const SizedBox(height: 24),
+
+                              // 🔹 Social Login buttons
+                              const Text(
+                                "Or login with",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 14, color: Colors.grey),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  // Google
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        message = "Google Login not implemented yet 🚧";
+                                      });
+                                    },
+                                    child: CircleAvatar(
+                                      radius: 24,
+                                      backgroundColor: Colors.white,
+                                      child: SizedBox(
+                                        height: 28,
+                                        width: 28,
+                                        child: Image.asset(
+                                          'assets/socials/google.png',
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  // Apple
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        message = "Apple Login not implemented yet 🚧";
+                                      });
+                                    },
+                                    child: CircleAvatar(
+                                      radius: 24,
+                                      backgroundColor: Colors.black,
+                                      child: SizedBox(
+                                        height: 28,
+                                        width: 28,
+                                        child: Icon(
+                                          Icons.apple,
+                                          color: Colors.white,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  // Facebook
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        message = "Facebook Login not implemented yet 🚧";
+                                      });
+                                    },
+                                    child: CircleAvatar(
+                                      radius: 24,
+                                      backgroundColor: Colors.blue[800],
+                                      child: SizedBox(
+                                        height: 28,
+                                        width: 28,
+                                        child: Icon(
+                                          Icons.facebook,
+                                          color: Colors.white,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 16),
 
                               if (message.isNotEmpty) ...[
                                 const SizedBox(height: 16),

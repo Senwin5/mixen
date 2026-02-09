@@ -229,6 +229,83 @@ class _SignupScreenState extends State<SignupScreen> {
                                 ),
                               ),
 
+                              const SizedBox(height: 24),
+
+                              // 🔹 Social Sign Up buttons (placeholders)
+                              const Text(
+                                "Or sign up with",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 14, color: Colors.grey),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  // Google
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        message = "Google Sign Up not implemented yet 🚧";
+                                      });
+                                    },
+                                    child: CircleAvatar(
+                                      radius: 24,
+                                      backgroundColor: Colors.white,
+                                      child: SizedBox(
+                                        height: 28,
+                                        width: 28,
+                                        child: Image.asset(
+                                          'assets/socials/google.png',
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  // Apple
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        message = "Apple Sign Up not implemented yet 🚧";
+                                      });
+                                    },
+                                    child: CircleAvatar(
+                                      radius: 24,
+                                      backgroundColor: Colors.black,
+                                      child: SizedBox(
+                                        height: 28,
+                                        width: 28,
+                                        child: Icon(
+                                          Icons.apple,
+                                          color: Colors.white,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  // Facebook placeholder
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        message = "Facebook Sign Up not implemented yet 🚧";
+                                      });
+                                    },
+                                    child: CircleAvatar(
+                                      radius: 24,
+                                      backgroundColor: Colors.blue[800],
+                                      child: SizedBox(
+                                        height: 28,
+                                        width: 28,
+                                        child: Icon(
+                                          Icons.facebook,
+                                          color: Colors.white,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
                               const SizedBox(height: 16),
 
                               // Already have account? Login

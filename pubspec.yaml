@@ -35,3 +35,4 @@ flutter:
   # Add assets to your application.
   assets:
     - assets/images/
+    - assets/socials/google.png
