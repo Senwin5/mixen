@@ -93,7 +93,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     }
   }
 
-  /// Submit profile to backend (image + data in one call)
+  /// Submit profile: upload image first, then update profile
   Future<void> submitProfile() async {
     if (_bioController.text.isEmpty || _ageController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -105,8 +105,14 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     setState(() => isLoading = true);
 
     try {
-      final success = await ApiService.updateProfileWithImage(
-        image: _image,
+      // 1️⃣ Upload the image first (if selected)
+      if (_image != null) {
+        final uploaded = await ApiService.uploadProfileImage(_image!);
+        if (!uploaded) throw Exception("Image failed to upload");
+      }
+
+      // 2️⃣ Update the rest of the profile
+      final success = await ApiService.updateProfile(
         bio: _bioController.text,
         age: int.tryParse(_ageController.text) ?? 0,
         gender: _genderController.text,
@@ -126,7 +132,8 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Error: $e")));
     }
 
     if (mounted) setState(() => isLoading = false);
@@ -134,11 +141,15 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final Color backgroundColor = isDarkMode ? Colors.black : Colors.white;
     final Color textFieldColor = isDarkMode ? Colors.white : Colors.black;
+    final Color cardBackground = isDarkMode ? Colors.grey[900]! : Colors.grey[100]!;
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         elevation: 0,
+        backgroundColor: backgroundColor,
         title: Text("Complete Your Profile", style: TextStyle(color: textFieldColor)),
         actions: [
           IconButton(
@@ -162,7 +173,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                       width: 150,
                       height: 150,
                       decoration: BoxDecoration(
-                          color: Colors.grey, borderRadius: BorderRadius.circular(75))),
+                          color: cardBackground, borderRadius: BorderRadius.circular(75))),
               const SizedBox(height: 12),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -174,83 +185,31 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               ),
               const SizedBox(height: 20),
 
-              // Bio
-              TextField(
-                controller: _bioController,
-                decoration: InputDecoration(
-                  labelText: "Bio",
-                  labelStyle: TextStyle(color: textFieldColor),
-                  enabledBorder:
-                      OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: textFieldColor, width: 2)),
-                ),
-                maxLines: 3,
-                style: TextStyle(color: textFieldColor),
-              ),
-              const SizedBox(height: 10),
-
-              // Age
-              TextField(
-                controller: _ageController,
-                decoration: InputDecoration(
-                  labelText: "Age",
-                  labelStyle: TextStyle(color: textFieldColor),
-                  enabledBorder:
-                      OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: textFieldColor, width: 2)),
-                ),
-                keyboardType: TextInputType.number,
-                style: TextStyle(color: textFieldColor),
-              ),
-              const SizedBox(height: 10),
-
-              // Gender
-              TextField(
-                controller: _genderController,
-                decoration: InputDecoration(
-                  labelText: "Gender",
-                  labelStyle: TextStyle(color: textFieldColor),
-                  enabledBorder:
-                      OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: textFieldColor, width: 2)),
-                ),
-                style: TextStyle(color: textFieldColor),
-              ),
-              const SizedBox(height: 10),
-
-              // Location
-              TextField(
-                controller: _locationController,
-                decoration: InputDecoration(
-                  labelText: "Location",
-                  labelStyle: TextStyle(color: textFieldColor),
-                  enabledBorder:
-                      OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: textFieldColor, width: 2)),
-                ),
-                style: TextStyle(color: textFieldColor),
-              ),
-              const SizedBox(height: 10),
-
-              // Height
-              TextField(
-                controller: _heightController,
-                decoration: InputDecoration(
-                  labelText: "Height (cm)",
-                  labelStyle: TextStyle(color: textFieldColor),
-                  enabledBorder:
-                      OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: textFieldColor, width: 2)),
-                ),
-                keyboardType: TextInputType.number,
-                style: TextStyle(color: textFieldColor),
-              ),
-              const SizedBox(height: 10),
+              // TextFields
+              ...[
+                {"controller": _bioController, "label": "Bio", "keyboard": TextInputType.text, "maxLines": 3},
+                {"controller": _ageController, "label": "Age", "keyboard": TextInputType.number},
+                {"controller": _genderController, "label": "Gender", "keyboard": TextInputType.text},
+                {"controller": _locationController, "label": "Location", "keyboard": TextInputType.text},
+                {"controller": _heightController, "label": "Height (cm)", "keyboard": TextInputType.number},
+                {"controller": _lookingForController, "label": "Looking for", "keyboard": TextInputType.text},
+              ].map((field) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: TextField(
+                    controller: field["controller"] as TextEditingController,
+                    decoration: InputDecoration(
+                      labelText: field["label"] as String,
+                      labelStyle: TextStyle(color: textFieldColor),
+                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
+                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor, width: 2)),
+                    ),
+                    keyboardType: field["keyboard"] as TextInputType,
+                    maxLines: field["maxLines"] as int? ?? 1,
+                    style: TextStyle(color: textFieldColor),
+                  ),
+                );
+              }),
 
               // Drink & Smoke switches
               Row(
@@ -258,7 +217,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                 children: [
                   Row(
                     children: [
-                      const Text("Drink"),
+                      Text("Drink", style: TextStyle(color: textFieldColor)),
                       Switch(
                         value: drink,
                         onChanged: (val) => setState(() => drink = val),
@@ -267,7 +226,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                   ),
                   Row(
                     children: [
-                      const Text("Smoke"),
+                      Text("Smoke", style: TextStyle(color: textFieldColor)),
                       Switch(
                         value: smoke,
                         onChanged: (val) => setState(() => smoke = val),
@@ -276,24 +235,9 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-
-              // Looking for
-              TextField(
-                controller: _lookingForController,
-                decoration: InputDecoration(
-                  labelText: "Looking for",
-                  labelStyle: TextStyle(color: textFieldColor),
-                  enabledBorder:
-                      OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: textFieldColor, width: 2)),
-                ),
-                style: TextStyle(color: textFieldColor),
-              ),
               const SizedBox(height: 20),
 
-              // Submit
+              // Submit button
               isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(

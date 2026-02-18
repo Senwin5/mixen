@@ -153,7 +153,8 @@ class ApiService {
     request.files.add(await http.MultipartFile.fromPath("image", file.path));
 
     final response = await request.send();
-    return response.statusCode == 200;
+    // ALLOW 200 OR 201
+    return response.statusCode == 200 || response.statusCode == 201;
   }
 
   // ===========================
@@ -224,12 +225,12 @@ class ApiService {
     if (lookingFor != null) request.fields["looking_for"] = lookingFor;
 
     if (image != null) {
-      request.files.add(
-          await http.MultipartFile.fromPath("image", image.path));
+      request.files.add(await http.MultipartFile.fromPath("image", image.path));
     }
 
     final response = await request.send();
-    return response.statusCode == 200;
+    // ALLOW 200 OR 201
+    return response.statusCode == 200 || response.statusCode == 201;
   }
 
   // =====================================================
@@ -305,55 +306,52 @@ class ApiService {
     };
   }
 
+  // ===========================
+  // GET USER MATCHES
+  // ===========================
+  static Future<List<Map<String, dynamic>>> getMatches() async {
+    String? token = await getToken();
+    if (token == null) throw Exception("No token found. Login first.");
+
+    final response = await http.get(
+      Uri.parse("$baseUrl/matches/"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List decoded = jsonDecode(response.body);
+      return decoded.map((e) => {
+        "id": e["id"],
+        "username": e["username"],
+      }).toList();
+    } else {
+      throw Exception("Failed to load matches");
+    }
+  }
 
   // ===========================
-// GET USER MATCHES
-// ===========================
-static Future<List<Map<String, dynamic>>> getMatches() async {
-  String? token = await getToken();
-  if (token == null) throw Exception("No token found. Login first.");
+  // GET USER COINS
+  // ===========================
+  static Future<int> getCoins() async {
+    String? token = await getToken();
+    if (token == null) throw Exception("No token found, Login first.");
 
-  final response = await http.get(
-    Uri.parse("$baseUrl/matches/"),
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token",
-    },
-  );
+    final response = await http.get(
+      Uri.parse("$baseUrl/profile-status/"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
 
-  if (response.statusCode == 200) {
-    final List decoded = jsonDecode(response.body);
-    return decoded.map((e) => {
-      "id": e["id"],
-      "username": e["username"],
-    }).toList();
-  } else {
-    throw Exception("Failed to load matches");
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['coins'] ?? 0;
+    } else {
+      throw Exception("Failed to fetch coins");
+    }
   }
-}
-
-
-// ===========================
-// GET USER COINS
-// ===========================
-static Future<int> getCoins() async {
-  String? token = await getToken();
-  if (token == null) throw Exception("No token found, Login first.");
-
-  final response = await http.get(
-    Uri.parse("$baseUrl/profile-status/"),
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token",
-    },
-  );
-
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    return data['coins'] ?? 0;
-  } else {
-    throw Exception("Failed to fetch coins");
-  }
-}
-
 }
