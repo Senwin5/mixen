@@ -21,11 +21,13 @@ class _ChatPageState extends State<ChatPage> {
   List<Map<String, dynamic>> messages = [];
   bool isLoading = false;
   int coins = 0; // 💰 user's coins
+  static const int chatCost = 3; // ✅ coins per message
 
   @override
   void initState() {
     super.initState();
     loadMessages();
+    loadUserCoins();
   }
 
   Future<void> loadMessages() async {
@@ -49,10 +51,35 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  Future<void> loadUserCoins() async {
+    try {
+      final currentCoins = await ApiService.getCoins();
+      if (!mounted) return;
+      setState(() {
+        coins = currentCoins;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error fetching coins: $e")),
+      );
+    }
+  }
+
   // ================= SEND MESSAGE (3 coins) =================
   Future<void> sendMessage() async {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
+
+    if (coins < chatCost) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("You need at least $chatCost coins to send a message."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     setState(() => isLoading = true);
 
@@ -66,7 +93,9 @@ class _ChatPageState extends State<ChatPage> {
 
       // ✅ Update coins from backend response
       if (result['remaining_coins'] != null) {
-        coins = result['remaining_coins'];
+        setState(() {
+          coins = result['remaining_coins'];
+        });
       }
 
       // ignore: use_build_context_synchronously
@@ -91,8 +120,7 @@ class _ChatPageState extends State<ChatPage> {
 
   // ================= START CALL (5 coins) =================
   Future<void> startCall() async {
-    final result =
-        await ApiService.startCall(widget.matchUserId);
+    final result = await ApiService.startCall(widget.matchUserId);
 
     if (result['success'] == true) {
       if (result['remaining_coins'] != null) {
@@ -123,21 +151,17 @@ class _ChatPageState extends State<ChatPage> {
     final isMe = msg['sender'] == 'me';
 
     return Align(
-      alignment:
-          isMe ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-        margin:
-            const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         decoration: BoxDecoration(
           color: isMe ? Colors.green[300] : Colors.grey[300],
           borderRadius: BorderRadius.circular(16),
         ),
         child: Text(
           msg['text'],
-          style: const TextStyle(
-              fontSize: 16, color: Colors.black87),
+          style: const TextStyle(fontSize: 16, color: Colors.black87),
         ),
       ),
     );
@@ -155,9 +179,7 @@ class _ChatPageState extends State<ChatPage> {
             child: Center(
               child: Text(
                 "💰 $coins",
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ),
           ),
@@ -173,38 +195,32 @@ class _ChatPageState extends State<ChatPage> {
         children: [
           Expanded(
             child: isLoading
-                ? const Center(
-                    child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : ListView.builder(
                     reverse: true,
                     itemCount: messages.length,
                     itemBuilder: (_, index) =>
-                        buildMessage(messages[
-                            messages.length - 1 - index]),
+                        buildMessage(messages[messages.length - 1 - index]),
                   ),
           ),
 
           // ================= INPUT BAR =================
           Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             color: Colors.grey[200],
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _messageController,
-                    decoration:
-                        const InputDecoration(
-                      hintText:
-                          "Type a message (3 coins)...",
+                    decoration: const InputDecoration(
+                      hintText: "Type a message (3 coins)...",
                       border: InputBorder.none,
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send,
-                      color: Colors.green),
+                  icon: const Icon(Icons.send, color: Colors.green),
                   onPressed: sendMessage,
                 ),
               ],

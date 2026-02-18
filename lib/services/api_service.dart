@@ -304,4 +304,56 @@ class ApiService {
       "error": data["error"],
     };
   }
+
+
+  // ===========================
+// GET USER MATCHES
+// ===========================
+static Future<List<Map<String, dynamic>>> getMatches() async {
+  String? token = await getToken();
+  if (token == null) throw Exception("No token found. Login first.");
+
+  final response = await http.get(
+    Uri.parse("$baseUrl/matches/"),
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final List decoded = jsonDecode(response.body);
+    return decoded.map((e) => {
+      "id": e["id"],
+      "username": e["username"],
+    }).toList();
+  } else {
+    throw Exception("Failed to load matches");
+  }
+}
+
+
+// ===========================
+// GET USER COINS
+// ===========================
+static Future<int> getCoins() async {
+  String? token = await getToken();
+  if (token == null) throw Exception("No token found, Login first.");
+
+  final response = await http.get(
+    Uri.parse("$baseUrl/profile-status/"),
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return data['coins'] ?? 0;
+  } else {
+    throw Exception("Failed to fetch coins");
+  }
+}
+
 }
