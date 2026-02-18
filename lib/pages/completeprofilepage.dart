@@ -93,7 +93,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     }
   }
 
-  /// Submit profile: upload image first, then update profile
+  /// Submit profile: use updateProfileWithImage for unified submission
   Future<void> submitProfile() async {
     if (_bioController.text.isEmpty || _ageController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -105,14 +105,8 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     setState(() => isLoading = true);
 
     try {
-      // 1️⃣ Upload the image first (if selected)
-      if (_image != null) {
-        final uploaded = await ApiService.uploadProfileImage(_image!);
-        if (!uploaded) throw Exception("Image failed to upload");
-      }
-
-      // 2️⃣ Update the rest of the profile
-      final success = await ApiService.updateProfile(
+      final success = await ApiService.updateProfileWithImage(
+        image: _image,
         bio: _bioController.text,
         age: int.tryParse(_ageController.text) ?? 0,
         gender: _genderController.text,
