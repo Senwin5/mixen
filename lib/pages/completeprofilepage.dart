@@ -83,19 +83,21 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
 
     try {
       final picker = ImagePicker();
-      final picked = await picker.pickImage(source: source, maxWidth: 800, maxHeight: 800, imageQuality: 80);
+      final picked = await picker.pickImage(
+          source: source, maxWidth: 800, maxHeight: 800, imageQuality: 80);
       if (picked != null && mounted) setState(() => _image = File(picked.path));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to pick image: $e")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Failed to pick image: $e")));
     }
   }
 
-  /// Submit profile to backend
+  /// Submit profile to backend (image + data in one call)
   Future<void> submitProfile() async {
-    if (_image == null || _bioController.text.isEmpty || _ageController.text.isEmpty) {
+    if (_bioController.text.isEmpty || _ageController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Fill all required fields and pick an image!")),
+        const SnackBar(content: Text("Fill all required fields!")),
       );
       return;
     }
@@ -103,12 +105,8 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     setState(() => isLoading = true);
 
     try {
-      // 1️⃣ Upload image
-      final imageSuccess = await ApiService.uploadProfileImage(_image!);
-      if (!imageSuccess) throw Exception("Image upload failed");
-
-      // 2️⃣ Update profile
-      final updateSuccess = await ApiService.updateProfile(
+      final success = await ApiService.updateProfileWithImage(
+        image: _image,
         bio: _bioController.text,
         age: int.tryParse(_ageController.text) ?? 0,
         gender: _genderController.text,
@@ -119,10 +117,13 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
         lookingFor: _lookingForController.text,
       );
 
-      if (!updateSuccess) throw Exception("Profile update failed");
+      if (!success) throw Exception("Profile update failed");
 
       if (!mounted) return;
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SwipePage()));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const SwipePage()),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
@@ -157,10 +158,17 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                       borderRadius: BorderRadius.circular(75),
                       child: Image.file(_image!, width: 150, height: 150, fit: BoxFit.cover),
                     )
-                  : Container(width: 150, height: 150, decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(75))),
+                  : Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                          color: Colors.grey, borderRadius: BorderRadius.circular(75))),
               const SizedBox(height: 12),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: forestGreen, foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 48)),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: forestGreen,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 48)),
                 onPressed: pickImageOption,
                 child: const Text("Pick Image"),
               ),
@@ -172,8 +180,10 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                 decoration: InputDecoration(
                   labelText: "Bio",
                   labelStyle: TextStyle(color: textFieldColor),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
-                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor, width: 2)),
+                  enabledBorder:
+                      OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: textFieldColor, width: 2)),
                 ),
                 maxLines: 3,
                 style: TextStyle(color: textFieldColor),
@@ -186,8 +196,10 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                 decoration: InputDecoration(
                   labelText: "Age",
                   labelStyle: TextStyle(color: textFieldColor),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
-                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor, width: 2)),
+                  enabledBorder:
+                      OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: textFieldColor, width: 2)),
                 ),
                 keyboardType: TextInputType.number,
                 style: TextStyle(color: textFieldColor),
@@ -200,8 +212,10 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                 decoration: InputDecoration(
                   labelText: "Gender",
                   labelStyle: TextStyle(color: textFieldColor),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
-                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor, width: 2)),
+                  enabledBorder:
+                      OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: textFieldColor, width: 2)),
                 ),
                 style: TextStyle(color: textFieldColor),
               ),
@@ -213,8 +227,10 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                 decoration: InputDecoration(
                   labelText: "Location",
                   labelStyle: TextStyle(color: textFieldColor),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
-                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor, width: 2)),
+                  enabledBorder:
+                      OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: textFieldColor, width: 2)),
                 ),
                 style: TextStyle(color: textFieldColor),
               ),
@@ -226,8 +242,10 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                 decoration: InputDecoration(
                   labelText: "Height (cm)",
                   labelStyle: TextStyle(color: textFieldColor),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
-                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor, width: 2)),
+                  enabledBorder:
+                      OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: textFieldColor, width: 2)),
                 ),
                 keyboardType: TextInputType.number,
                 style: TextStyle(color: textFieldColor),
@@ -266,8 +284,10 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                 decoration: InputDecoration(
                   labelText: "Looking for",
                   labelStyle: TextStyle(color: textFieldColor),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
-                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: textFieldColor, width: 2)),
+                  enabledBorder:
+                      OutlineInputBorder(borderSide: BorderSide(color: textFieldColor)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: textFieldColor, width: 2)),
                 ),
                 style: TextStyle(color: textFieldColor),
               ),
@@ -277,7 +297,10 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: forestGreen, foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 48)),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: forestGreen,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(double.infinity, 48)),
                       onPressed: submitProfile,
                       child: const Text("Submit"),
                     ),

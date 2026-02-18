@@ -62,6 +62,29 @@ class ApiService {
   }
 
   // ===========================
+  // GET MESSAGES  ✅ (ADDED)
+  // ===========================
+  static Future<List<Map<String, dynamic>>> getMessages(int userId) async {
+    String? token = await getToken();
+    if (token == null) throw Exception("No token found. Login first.");
+
+    final response = await http.get(
+      Uri.parse("$baseUrl/messages/$userId/"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return List<Map<String, dynamic>>.from(data["messages"]);
+    } else {
+      throw Exception("Failed to load messages");
+    }
+  }
+
+  // ===========================
   // SWIPE USERS
   // ===========================
   static Future<List<Map<String, dynamic>>> getSwipeUsers() async {
@@ -70,7 +93,10 @@ class ApiService {
 
     final response = await http.get(
       Uri.parse("$baseUrl/swipe/"),
-      headers: {"Content-Type": "application/json", "Authorization": "Bearer $token"},
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      },
     );
 
     if (response.statusCode == 200) {
@@ -99,7 +125,10 @@ class ApiService {
 
     final response = await http.post(
       Uri.parse("$baseUrl/like/"),
-      headers: {"Content-Type": "application/json", "Authorization": "Bearer $token"},
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      },
       body: jsonEncode({"to_user_id": userId}),
     );
 
@@ -118,7 +147,8 @@ class ApiService {
     String? token = await getToken();
     if (token == null) throw Exception("No token found. Login first.");
 
-    final request = http.MultipartRequest("POST", Uri.parse("$baseUrl/upload-profile-image/"));
+    final request = http.MultipartRequest(
+        "POST", Uri.parse("$baseUrl/upload-profile-image/"));
     request.headers["Authorization"] = "Bearer $token";
     request.files.add(await http.MultipartFile.fromPath("image", file.path));
 
@@ -127,7 +157,7 @@ class ApiService {
   }
 
   // ===========================
-  // UPDATE PROFILE
+  // UPDATE PROFILE WITHOUT IMAGE
   // ===========================
   static Future<bool> updateProfile({
     required String bio,
@@ -144,7 +174,10 @@ class ApiService {
 
     final response = await http.put(
       Uri.parse("$baseUrl/profile/"),
-      headers: {"Content-Type": "application/json", "Authorization": "Bearer $token"},
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      },
       body: jsonEncode({
         "bio": bio,
         "age": age,
@@ -158,5 +191,117 @@ class ApiService {
     );
 
     return response.statusCode == 200;
+  }
+
+  // ===========================
+  // UPDATE PROFILE WITH IMAGE
+  // ===========================
+  static Future<bool> updateProfileWithImage({
+    File? image,
+    required String bio,
+    required int age,
+    String? gender,
+    String? location,
+    int? height,
+    bool drink = false,
+    bool smoke = false,
+    String? lookingFor,
+  }) async {
+    String? token = await getToken();
+    if (token == null) throw Exception("No token found. Login first.");
+
+    final uri = Uri.parse("$baseUrl/profile/");
+    final request = http.MultipartRequest("PUT", uri);
+    request.headers["Authorization"] = "Bearer $token";
+
+    request.fields["bio"] = bio;
+    request.fields["age"] = age.toString();
+    if (gender != null) request.fields["gender"] = gender;
+    if (location != null) request.fields["location"] = location;
+    if (height != null) request.fields["height"] = height.toString();
+    request.fields["drink"] = drink ? "true" : "false";
+    request.fields["smoke"] = smoke ? "true" : "false";
+    if (lookingFor != null) request.fields["looking_for"] = lookingFor;
+
+    if (image != null) {
+      request.files.add(
+          await http.MultipartFile.fromPath("image", image.path));
+    }
+
+    final response = await request.send();
+    return response.statusCode == 200;
+  }
+
+  // =====================================================
+  // COIN SYSTEM METHODS (CLEAN - NO DUPLICATES)
+  // =====================================================
+
+  static Future<Map<String, dynamic>> sendMessage(int toUserId, String message) async {
+    String? token = await getToken();
+    if (token == null) throw Exception("No token found. Login first.");
+
+    final response = await http.post(
+      Uri.parse("$baseUrl/send-message/"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      },
+      body: jsonEncode({
+        "to_user": toUserId,
+        "message": message,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+
+    return {
+      "success": response.statusCode == 200 || response.statusCode == 201,
+      "remaining_coins": data["remaining_coins"],
+      "error": data["error"],
+    };
+  }
+
+  static Future<Map<String, dynamic>> viewLikes() async {
+    String? token = await getToken();
+    if (token == null) throw Exception("No token found. Login first.");
+
+    final response = await http.get(
+      Uri.parse("$baseUrl/view-likes/"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      },
+    );
+
+    final data = jsonDecode(response.body);
+
+    return {
+      "success": response.statusCode == 200,
+      "likes": data["likes"],
+      "remaining_coins": data["remaining_coins"],
+      "error": data["error"],
+    };
+  }
+
+  static Future<Map<String, dynamic>> startCall(int userId) async {
+    String? token = await getToken();
+    if (token == null) throw Exception("No token found. Login first.");
+
+    final response = await http.post(
+      Uri.parse("$baseUrl/start-call/"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token"
+      },
+      body: jsonEncode({"user_id": userId}),
+    );
+
+    final data = jsonDecode(response.body);
+
+    return {
+      "success": response.statusCode == 200,
+      "remaining_coins": data["remaining_coins"],
+      "error": data["error"],
+    };
   }
 }
